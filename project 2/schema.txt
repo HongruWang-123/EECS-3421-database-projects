@@ -1,0 +1,111 @@
+create table method_table(
+method varchar(100) not null,
+constraint method_pk
+        primary key (method)
+);
+
+create table person_table(
+sin char(9) not null,
+name varchar(100),
+address varchar(100),
+phone  char(10),
+	constraint person_pk
+	primary key(sin)
+);
+
+create table bubble_table(
+sin_a char(9) not null,
+sin_b char(9) not null,
+	constraint bub_fk1_person
+	foreign key (sin_a) references person_table,
+	constraint bub_fk2_person
+	foreign key (sin_b) references person_table,
+    constraint bub_tab_pk
+	primary key(sin_a,sin_b)
+);
+
+create table place_table(
+name varchar(100) not null,
+address varchar(100) not null,
+description varchar(300),
+gps varchar(20),
+	constraint pla_tab_pk
+	primary key(name)
+);
+
+create table timeslot_table(
+time timestamp not null,
+	constraint ts_tab_pk
+	primary key(time)
+);
+
+create table recon_table(
+sin char(9) not null,
+method varchar(100) not null,
+name varchar(100) not null,
+time timestamp not null,
+	constraint rec_tab_pk
+	primary key(sin,method,name,time),
+	constraint rec_tab_fk1
+	foreign key(sin)references person_table,
+	constraint rec_tab_fk2
+	foreign key(method)references method_table,
+	constraint rec_tab_fk3
+	foreign key(name)references place_table,
+	constraint rec_tab_fk4
+	foreign key(time)references timeslot_table
+);
+
+create table action_table(
+action varchar(100) not null,
+    constraint act_tab_pk
+	primary key(action) 
+);
+
+create table testtype_table(
+testtype varchar(100) not null,
+    constraint tt_tab_pk
+	primary key(testtype) 
+);
+
+create table testcentre_table(
+name varchar(100) not null,
+address varchar(100) not null,
+description varchar(300),
+gps varchar(20),
+	constraint tc_tab_pk
+	primary key(name),
+	constraint tc_tab_fk
+	foreign key(name) references place_table
+);
+
+create table offer_table(
+testtype varchar(100) not null,
+name varchar(100) not null,
+	constraint off_tc_fk
+	foreign key(name) references testcentre_table,
+	constraint off_tt_fk
+	foreign key(testtype) references testtype_table,
+    constraint off_pk
+	primary key(testtype,name)
+);
+
+create table test_table(
+sin char(9) not null,
+time timestamp not null,	
+action varchar(100) not null,
+testtype varchar(100) not null,
+name varchar(100) not null,
+	constraint test_tab_pk
+	primary key(sin,time),
+	constraint test_ps_fk
+	foreign key(sin) references person_table,
+	constraint test_time_fk
+	foreign key(time) references timeslot_table,
+	constraint test_act_fk
+	foreign key(action) references action_table,
+	constraint test_tc_fk1
+	foreign key(name) references testcentre_table,
+	constraint test_tt_fk2
+	foreign key (testtype) references testtype_table
+);

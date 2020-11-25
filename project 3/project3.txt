@@ -1,0 +1,310 @@
+--q1
+--myself
+select * 
+from player
+where name ilike concat('%',login,'%');
+order by login asc;
+
+--q2
+--List each quest by realm, day, and theme which offered a prize (treasure) with “Gold” in the name which was rewarded to some player.
+with
+    needed(realm,day,theme)as(
+	select l.realm,l.day,l.theme
+	from loot l,quest q
+	where q.realm = l.realm
+     and q.day = l.day
+	 and q.theme = l.theme
+	 and l.treasure Like '%Gold%'
+	 and l.login is not null
+	)
+select distinct *
+from needed
+order by day asc,realm asc;
+
+--q3
+--evening
+select theme,day,realm,succeeded
+from quest
+where succeeded > '20:00:00'
+      or succeeded is null
+order by theme,day,realm;
+
+--q4
+with needed(login,day) as (
+select a.login,a.day
+from actor a,quest q
+where q.day = a.day
+and   q.realm = a.realm
+and   q.theme = a.theme
+group by a.login,a.day
+having count(a.realm) > 1
+	or count(a.theme) > 1
+)
+select p.login,p.name,q.day,q.realm,q.theme
+from needed n, player p,quest q,actor a
+where n.login = p.login
+and   n.day = q.day
+and   a.login = n.login
+and   a.login = p.login
+and   a.realm = q.realm
+and   a.theme = q.theme
+and   a.day = q.day
+order by login, name, day, realm, theme;
+
+--q5
+with find(login,avatars) as (
+select login, count(name)
+from avatar
+where login in (select a.login 
+from avatar a, player p
+where a.login = p.login
+and   a.gender is not null
+and   a.gender <> p.gender)
+group by login
+)
+
+select p.login, p.name, p.gender, f.avatars
+from player p, find f
+where p.login = f.login
+order by login;
+
+--q6
+select theme,count(succeeded) as quest
+from quest
+where theme not in (
+select theme
+from quest
+where succeeded is null
+)
+group by theme
+order by theme;
+
+--q7
+select login,realm,count(day) as visits,cast(cast((max(day)-min(day)) as decimal(5,2))/(count(*)-1) as decimal(5,2)) as frequency
+from visit
+group by login,realm
+having count(day) > 1
+order by login, realm;
+
+--q8
+with findactors(login,name,race,gender,realm,theme,day) as (
+select a.login,a.name,a.race,a.gender,v.realm,c.theme,c.day
+from avatar a, visit v,actor c
+where a.login = v.login
+and   a.name = v.name
+and   v.login = c.login
+and   v.realm = c.realm
+and   v.day = c.day
+),
+findquests(login,name,race,gender,realm,theme,day) as (
+select f.login,f.name,f.race,f.gender,f.realm,q.theme,f.day
+from findactors f, quest q
+where f.realm = q.realm
+and   f.day = q.day
+and   f.theme = q.theme
+and   q.succeeded is not null
+),
+--find sql for each quest
+findsql(login,realm,theme,day,sql) as (
+select l.login,l.realm,l.theme,l.day,t.sql
+from loot l,treasure t
+where l.treasure = t.treasure
+),
+--find sql for each quest in findquests 
+findsql2(login,name,race,gender,realm,theme,day,sql) as (
+select q.login,q.name,q.race,q.gender,f.realm,f.theme,f.day,f.sql
+from findquests q, findsql f
+where q.login = f.login
+and   q.realm = f.realm
+and   q.day = f.day
+and   q.theme = f.theme
+),
+--find toal sql for specific gender in each realm for each race
+gendersql(realm,race,gender,total) as (
+select realm,race,gender,sum(sql)
+from findsql2
+group by realm,race,gender
+)
+select *
+from gendersql
+where (realm,race,total) in 
+(select realm,race,max(total)
+from gendersql
+group by realm,race)
+order by realm, race, gender;
+
+
+--q9
+with findactor(login,name,realm,day,theme) as (
+select v.login,v.name,v.realm,v.day,a.theme
+from actor as a, visit as v
+where a.login = v.login
+and   a.realm = v.realm
+and   a.day = v.day
+),
+
+findallpossible(login,name,realm,combine) as (
+select distinct login,name,realm,string_agg(r,'') as d
+from (select login,name,realm,concat(realm,theme,day) as r
+	   from findactor) as what
+group by login,name,realm
+)
+
+select f1.login as companion1,f1.name as fname,f1.realm,f2.login as companion2,f2.name as lname
+from findallpossible f1,findallpossible f2
+where f1.login < f2.login
+and f1.name <> f2.name
+and f1.combine = f2.combine
+order by realm, companion1, fname, companion2, lname;
+
+
+
+--q10
+--find quests and count successful quests for each avatar
+with findactors(login,name,realm,theme,day) as (
+select a.login,a.name,v.realm,c.theme,c.day
+from avatar a, visit v,actor c
+where a.login = v.login
+and   a.name = v.name
+and   v.login = c.login
+and   v.realm = c.realm
+and   v.day = c.day
+),
+findquests(login,name,realm,theme,day,succeeded) as (
+select f.login,f.name,f.realm,q.theme,f.day,q.succeeded
+from findactors f, quest q
+where f.realm = q.realm
+and   f.day = q.day
+and   f.theme = q.theme
+),
+countquests(login,name,quests) as (
+select login,name,count(succeeded)
+from findquests 
+group by login,name
+),
+--find sql and calculate the potential sql for each avatar
+findsql(realm,theme,day,sql) as (
+select l.realm,l.theme,l.day,t.sql
+from loot l,treasure t
+where l.treasure = t.treasure
+),
+findhighestsql(realm,theme,day,potential) as (
+select realm,theme,day,max(sql)
+from findsql
+group by realm,theme,day
+),
+findloginpotential(login,name,realm,theme,day,potential) as (
+select login,name,s.realm,s.theme,s.day,s.potential
+from findquests q, findhighestsql s
+where q.realm = s.realm
+and   q.day = s.day
+and   q.theme = s.theme
+and q.succeeded is not null
+),
+findsum(login,name,earned) as (
+select login,name,sum(potential)
+from findloginpotential p
+group by login,name
+),
+findall as (select login,name,race,(select quests from countquests q where a.login = q.login and a.name = q.name) as quests,(select earned from findsum s where a.login = s.login and a.name = s.name) as earned
+from avatar a
+order by login, name)
+
+select login,name,race,(case when quests is null then 0 else quests end) as quests,(case when earned is null then 0 else earned end) as earned
+from findall
+
+
+
+
+
+
+
+
+
+--problematic q10
+--find quests and count successful quests for each avatar
+with findactors(login,name,realm,theme,day) as (
+select a.login,a.name,v.realm,c.theme,c.day
+from avatar a, visit v,actor c
+where a.login = v.login
+and   a.name = v.name
+and   v.login = c.login
+and   v.realm = c.realm
+and   v.day = c.day
+),
+findquests(login,name,realm,theme,day,succeeded) as (
+select f.login,f.name,f.realm,q.theme,f.day,q.succeeded
+from findactors f, quest q
+where f.realm = q.realm
+and   f.day = q.day
+and   f.theme = q.theme
+),
+countquests(login,name,quests) as (
+select login,name,count(succeeded)
+from findquests 
+group by login,name
+),
+
+--find sql and calculate the potential sql for each avatar
+findsql(realm,theme,day,sql) as (
+select l.realm,l.theme,l.day,t.sql
+from loot l,treasure t
+where l.treasure = t.treasure
+),
+findhighestsql(realm,theme,day,potential) as (
+select realm,theme,day,max(sql)
+from findsql
+group by realm,theme,day
+),
+findloginpotential(login,name,realm,theme,day,potential,succeeded) as (
+select login,name,s.realm,s.theme,s.day,s.potential,q.succeeded
+from findquests q, findhighestsql s
+where q.realm = s.realm
+and   q.day = s.day
+and   q.theme = s.theme
+),
+makenull0(login,name,realm,theme,day,potential) as (
+select login,name,realm,theme,day,case when succeeded is null then 0 else potential end as potential
+from findloginpotential
+),
+findsum(login,name,earned) as (
+select login,name,sum(potential)
+from makenull0 n
+group by login,name
+)
+select a.login,a.name,a.race,case when a.login and a.name not in countquests q then 0 else q.quests end as quests,case when a.login and a.name not in findsum s then 0 else s.earned end as earned
+from avatar a,countquests q,findsum s
+where a.login = q.login
+and   a.name = q.name
+and   a.login = s.login
+and   a.name = s.name
+order by login, name
+
+
+--q8?????
+with first(login,realm,treasure) as (
+select distinct login,realm,treasure
+from loot
+),
+second(login,realm,treasure,sql) as(
+select f.login,f.realm,f.treasure,t.sql
+from first f, treasure t
+where t.treasure = f.treasure
+),
+third(login,realm,treasure,sql,gender,race) as (
+select s.login,s.realm,s.treasure,s.sql,a.gender,a.race
+from second s,avatar a
+where s.login = a.login
+),
+forth(realm,race,gender,total) as (
+select realm,race,gender,sum(sql)
+from third t
+group by realm,race,gender
+)
+select *
+from forth
+where (realm,race,total) in 
+(select realm,race,max(total)
+from forth
+group by realm,race)
+order by realm, race, gender

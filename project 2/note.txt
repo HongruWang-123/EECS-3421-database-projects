@@ -1,0 +1,36 @@
+This is the note from Hongru Wang, student number 216403370, student mail: bruce123@my.yorku.ca.
+
+I modified offer and test to offer_table and test_table in check code.
+I modified the code given for check and track to fit my schema. I wrote all table name in the form of xxx_table(e.g recon_table) so I change the table name of recon in track code to be recon_table and the placename to name in track code to fit my schema.
+
+This is my version of check code.
+select  *,
+         (case when t.testtype in
+                   (select testtype
+                    from   offer_table as o
+                    where  o.name = t.name)
+          then 'yes' else 'no' end) as offered
+ from  test_table as t;
+  
+This is my version of track code.
+with Visit (sin, placename, enterTime, exitTime) as (
+        select  Entry.sin, 
+                Entry.name,
+                Entry.time,
+                min(Exit.time)
+        from  recon_table as Entry,
+              recon_table as Exit
+        where Entry.sin = Exit.sin
+          and Entry.name = Exit.name
+          and Entry.method    = 'registry sign in'
+          and Exit.method     = 'registry sign out'
+          and Entry.time     <= Exit.time
+        group by Entry.sin, Entry.name, Entry.time
+)
+select  P.sin, P.name, T.time as testTime, V.enterTime, V.exitTime
+from    person_table as P, test_table as T, Visit as V
+where   P.sin        = T.sin
+  and   T.sin        = V.sin
+  and   T.name = V.placename
+  and   T.time      >= V.enterTime
+  and   T.time      <= V.exitTime;

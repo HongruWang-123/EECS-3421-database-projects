@@ -1,0 +1,93 @@
+insert into method_table (method) values
+('contact-tracing phone app'),
+('surveillance camera'),
+('registry sign in'),
+('registry sign out');
+
+insert into person_table (sin,name,address,phone) values
+('123456789','bruce','hackett ave','0123456789'),
+('123456788','peter','Vaugh','0123456788'),
+('123456787','Wenxuan','down town','0123456787'),
+('123456786','Tianpei','yonge sheppard','0123456786'),
+('123456785','Jiahao','York University','0123456785');
+
+insert into timeslot_table(time) values
+('2020-11-03 11:15:00'),
+('2020-11-03 11:30:00'),
+('2020-11-05 11:15:00'),
+('2020-11-05 11:30:00'),
+('2020-11-04 11:15:00'),
+('2020-11-04 11:30:00'),
+('2020-11-18 11:15:00'),
+('2020-11-18 11:30:00');
+
+insert into place_table(name,address,description,gps) values
+('testcenter1','keele St 15th','near york university','30S,15E'),
+('testcenter2','Yonge St 25th','near a ramen shop','35N,15E'),
+('testcenter3','Hackett Ave 15th','near north york library','40S,15W');
+
+insert into action_table(action) values
+('isolation'),
+('medicine injection'),
+('in great condition and do nothing');
+
+insert into testtype_table(testtype) values
+('blood test'),
+('urine test'),
+('body temperature test');
+
+insert into testcentre_table(name,address,description,gps) values
+('testcenter1','keele St 15th','near york university','30S,15E'),
+('testcenter2','Yonge St 25th','near a ramen shop','35N,15E'),
+('testcenter3','Hackett Ave 15th','near north york library','40S,15W');
+
+
+insert into offer_table(testtype,name) values
+('blood test','testcenter1'),
+('urine test','testcenter1'),
+('body temperature test','testcenter1'),
+('blood test','testcenter2'),
+('urine test','testcenter2'),
+('blood test','testcenter3');
+
+
+insert into test_table(sin,time,action,testtype,name) values
+('123456789','2020-11-03 11:15:00','in great condition and do nothing','blood test','testcenter1'),
+('123456788','2020-11-05 11:15:00','in great condition and do nothing','blood test','testcenter1'),
+('123456787','2020-11-03 11:15:00','medicine injection','blood test','testcenter2'),
+('123456786','2020-11-04 11:15:00','medicine injection','blood test','testcenter3'),
+('123456785','2020-11-04 11:15:00','isolation','blood test','testcenter2'),
+('123456785','2020-11-18 11:15:00','in great condition and do nothing','urine test','testcenter2');
+
+
+insert into recon_table(sin,method,name,time) values
+('123456789','contact-tracing phone app','testcenter1','2020-11-03 11:15:00'),
+('123456789','surveillance camera','testcenter1','2020-11-03 11:15:00'),
+('123456789','registry sign in','testcenter1','2020-11-03 11:15:00'),
+('123456789','registry sign out','testcenter1','2020-11-03 11:30:00'),
+('123456788','contact-tracing phone app','testcenter1','2020-11-05 11:15:00'),
+('123456788','surveillance camera','testcenter1','2020-11-05 11:15:00'),
+('123456788','registry sign in','testcenter1','2020-11-05 11:15:00'),
+('123456788','registry sign out','testcenter1','2020-11-05 11:30:00'),
+('123456787','contact-tracing phone app','testcenter2','2020-11-03 11:15:00'),
+('123456787','surveillance camera','testcenter2','2020-11-03 11:15:00'),
+('123456787','registry sign in','testcenter2','2020-11-03 11:15:00'),
+('123456787','registry sign out','testcenter2','2020-11-03 11:30:00'),
+('123456786','registry sign in','testcenter3','2020-11-04 11:15:00'),
+('123456786','registry sign out','testcenter3','2020-11-04 11:30:00'),
+('123456786','contact-tracing phone app','testcenter3','2020-11-04 11:15:00'),
+('123456786','surveillance camera','testcenter3','2020-11-04 11:15:00'),
+('123456785','surveillance camera','testcenter2','2020-11-04 11:15:00'),
+('123456785','contact-tracing phone app','testcenter2','2020-11-04 11:15:00'),
+('123456785','registry sign in','testcenter2','2020-11-04 11:15:00'),
+('123456785','registry sign out','testcenter2','2020-11-04 11:30:00'),
+('123456785','registry sign in','testcenter2','2020-11-18 11:15:00'),
+('123456785','registry sign out','testcenter2','2020-11-18 11:30:00');
+
+
+insert into bubble_table(sin_a,sin_b) values
+('123456789','123456788'),
+('123456787','123456786'),
+('123456789','123456785'),
+('123456785','123456788');
+
