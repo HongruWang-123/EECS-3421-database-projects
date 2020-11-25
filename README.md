@@ -1,7 +1,7 @@
 # EECS-3421-database-projects
-Project 1
-project 1 is the E/R graph based on the description below.
-description: The Contact Tracing Domain
+# Project 1
+#1.project 1 is the E/R graph based on the description below.
+#description: The Contact Tracing Domain
 To be able to trace with whom a person has been in contact, we need to know where that person has been and when. We have to know this about everyone else too. Then we could figure out the potential contacts by seeing who was in places at the same time as the person. During an epidemic with a highly infectious disease, by tracing the recent contacts of a person who has become ill, these people can be warned to take appropriate action. This can greatly help to stem the epidemic.
 
 Thus Person is fundamental in our database. We are tracing people, after all. Information we should keep for people is a name, address, and phone#. We can keep sin, a person's social insurance number to identify the person. (Assume that the government will issue anyone in Canada who does not have a sin a temporary sin for this very purpose. Also note that, in building such a database for real, in truth, using sin for this would likely not be a good choice. But, for the project, let us assume it is.)
