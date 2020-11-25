@@ -2,24 +2,92 @@
 # Project 1
 project 1 is the E/R graph based on the description below.
 
-description: The Contact Tracing Domain:
+description: working to design and field a contact-tracing database to be able to trace rapidly people who may have been in close proximity (contact) to someone diagnosed with a highly infectious disease. This can be used to help contain an epidemic.
 
-To be able to trace with whom a person has been in contact, we need to know where that person has been and when. We have to know this about everyone else too. Then we could figure out the potential contacts by seeing who was in places at the same time as the person. During an epidemic with a highly infectious disease, by tracing the recent contacts of a person who has become ill, these people can be warned to take appropriate action. This can greatly help to stem the epidemic.
+# project 2
+project 2 is building relational schema based on what have done in project 1
 
-Thus Person is fundamental in our database. We are tracing people, after all. Information we should keep for people is a name, address, and phone#. We can keep sin, a person's social insurance number to identify the person. (Assume that the government will issue anyone in Canada who does not have a sin a temporary sin for this very purpose. Also note that, in building such a database for real, in truth, using sin for this would likely not be a good choice. But, for the project, let us assume it is.)
+# project 3
 
-We should also record Places. This will include public building and other indoor places where people can meet, and thus come into contact. (We assume for now that the disease does not transmit outdoors, so we are not keeping track of all possible locations.) We can use a place's name to identify it, and we want to keep about a place its gps coordinates, address, and a description.
+project 3 is making a schema of Raccoon Rhapsody Database and use different query to obtain 10 different goal.
 
-Central to the whole database's operation is to collect “observations” about which places a person has been, and when they were there. Thus, we are designing a mass-surveillance database! But we are assuming that this is for a good cause, and that the database, once up and running, will not be abused for other purposes.
+1. myself
+List each player whose login is part of his or her name; i.e., his or her login is a substring of his or her name. This should be case insensitive; e.g., “thom” is a substring of “Thomas Kane”.
 
-Let us call an observation that such a person was in such a place at such a time a Recon — a shortened form of the military term reconnaissance — to have an easier way to organize our thoughts. A Recon names a Person (who) as being at a Place at a given time (when). Let us employ the notion of Time Slot for handling times. There will be effectively an entry in Time Slot for every fifteen-minute period; e.g., 3:00pm 25 September 2020, 3:15pm 25 September 2020, 3:30pm 25 September 2020, and so forth. For any given time slot in which a person was observed somehow to be at a place, we would have a Recon entry. Thus each Recon is associated with a Time Slot, telling us when the person was there. (A better way to handle time in such a scenario is to work with time intervals. This is significantly more involved design-wise, however. Therefore, for our first cut of a schema for our contact-tracing database — that is, this project — let us employ Time Slot to handle the “when” aspect.) In fact, we can use when to identify any given Time Slot. (Say we assume the when value identifies the beginning of the time slot; e.g., 3:00pm stands for 3:00pm up to 3:15pm.)
+schema: login, name, gender, address, joined
+order by login (asc)
 
-A Recon then identifies — and therefore, is identified, at least in part, by — the person, the place, and the time slot (when), which is “saying” that Person (who) was at Place during this Time-slot time (when). For any Recon, we also must record the Method, the way, that we know that the person was at the place at that time. Examples of methods might be, for example, contact-tracing phone app, surveillance camera with facial recognition, and a registry entry (the person had to sign a registry book on entering and exiting the building). Note that there could be more than one recons telling us a person was at a place at a given time, each recon supported by different evidence (Method).
 
-In our database, we also need to track when a person is tested, a Test, for the disease. Such a diagnosis Test is administered to a given Person at (“upon”) a given time (Time Slot). This information identifies any given Test. A Test is administered in a Test Centre — which is a Place — and is of a given Test Type. (There are different types of test for the disease, which may differ in efficacy and cost.) Thus, we want to record where the Test was administered, and what type of test it was.
+2. golden
+List each quest by realm, day, and theme which offered a prize (treasure) with “Gold” in the name which was rewarded to some player.
 
-A Test may result in an Action. Let Action be identified by an action name. (An action might be taken given the result of the test; for instance, if it came back positive for the disease, the person might be placed in quarantine.) Assume that a given Test results in at most one Action. Of course, a Test might not result in any action. (Say, the test came back negative and no action was necessary.) We want to track actions resulting from tests.
+schema: realm, day, theme
+order by day, realm, theme
 
-Not all Test Centres are equiped to administer all types of test (Test Types). Thus, we want to record which Test Types are offered at which Test Centres. A Test Centre may offer different types of test; and a type of test may be available at a number of test centres.
 
-Lastly, the Government is to require that each Person identifies their bubble; that is family and friends — other people (Persons) — with whom they are regularly in contact. We need to record this “bubble” information in the database.
+3. evening
+List the quests by theme, day, and realm that were not completed before 8pm (on the day of the quest) with their succeeded time (which is null if it did not succeed).
+
+schema: theme, day, realm, succeeded
+order by theme, day, realm
+
+
+4. cheat
+Report for each player by login and name who managed to participate in more than one quest on the same day, along with those quests by day, realm, and theme.
+
+schema: login, name, day, realm, theme
+order by login, name, day, realm, theme
+
+
+5. bend
+List each player by login, name, and gender who gender swapped at least once with their avatars, along with the count of how many avatars that he or she has (avatars).
+
+schema: login, name, gender, avatars
+order by login
+
+
+
+6. successful
+Select the themes (theme) for which the quests were always successful, and report the number of successful quests (quests) for each such.
+
+schema: theme, quests
+order by theme
+
+
+
+7. frequency
+Report the average number of days (as frequency) between visits to each given realm for each player. Also show the number of visits (visits) to that realm for the player. (Ignore a player in a realm if the player has never visited it or has only visited it once; the frequency is not defined in such cases.)
+
+notes
+
+Cast frequency with precision five and scale two.
+schema: login, realm, visits, frequency
+order by login, realm
+
+
+
+8. race
+Show each realm and race (of avatar) with the gender whose avatars of that race earned the most scrip (sql) collectively from loot rewarded in quests in that realm, along with the what that race and gender collectively earned in quests in the realm (total).
+
+In case of ties for most in a region, list all that tied.
+
+schema: realm, race, gender, total
+order by realm, race, gender
+
+
+
+9. companions
+List each occurrence in which an avatar (by login as companion1 and avatar's name as fname) whose participation in quests within a given realm has always been together with a second avatar (by login as companion2 and name as lname) who has participated in exactly those same quests within the realm.
+
+Since each pair of such companions would be shown twice — once with avatar X and avatar Y and once with avatar Y and avatar X — break the tie and show each such pair (per realm) just once; choose such that companion1 is before companion2 in dictionary order.
+
+schema: companion1, fname, realm, companion2, lname
+order by realm, companion1, fname, companion2, lname
+
+
+
+10. potential
+Show for each avatar by login, avatar's name, and race, the scrip (sql) that the avatar would have earned (earned) if the avatar had been rewarded the prize (loot) of highest value (and just that prize, one piece of loot) for each quest in which the avatar participated that was successfully completed, and how many successful quests the avatar has participated in (quests).
+
+schema: login, name, race, earned, quests
+order by login, name
