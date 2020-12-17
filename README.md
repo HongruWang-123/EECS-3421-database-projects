@@ -101,3 +101,44 @@ Show for each avatar by login, avatar's name, and race, the scrip (sql) that the
 schema: login, name, race, earned, quests
 
 order by login, name
+
+#project 4
+Raccoon Rhapsody, the multi-player online game by Questeme, has become wildly popular. The company wants to streamline maintaining the RR-DB database that backs the game.
+
+One task that game administrators have to do is to create new quests on a regular basis for the players. This involves making a new entry into the Quest table for the new quest for a future day with a given theme and region. And then assigning loot — adding to the Loot table — for the new quest. (Of course, much more too has to be done. The game designers have to come up with the story line for the new quest, the artists sometimes must create new gaming assets for the quest and perhaps new scenes, etc. But we do not have to worry about those aspects!)
+
+You have been asked to automate this task with an application program, let us call it CreateQuest. You are to make this in Java using JDBC; so, CreateQuest.java. The app should connect with Questeme's PostgreSQL database server at db (okay, really EECS's) with the RR-DB database to make the necessary updates on request.\n
+CreateQuest <day> <realm> <theme> <amount> [<user>] [seed]
+day: the day for the new quest
+realm: which realm the new quest is in
+theme: the theme for the new quest
+amount: the floor for the sum of the assigned loot by value (sql)
+user (optional): which user and database the app is connecting with and to, respectively. This should default to your user name (which is also your database's name).
+seed (optional): a real (float) number between -1 and 1 that is seeded before the use of random(). (If no seed is provided, then no seeding is to be done beforehand.)
+Your program should accept the command-line parameters as specified above.
+
+Error Messages
+
+The app should provide an error message back to the user for each of the following cases. (Your Java program should finish without failing in error itself in these cases!)
+
+day is not in future: if the day provided is not in the future, the app should state this and not make any changes to the database.
+realm does not exist: if the realm does not exist in the Realm table, the app should state this and not make any changes to the database.
+amount exceeds what is possible: if loot cannot be assigned by the loot rules listed below that meets or exceeds the sql amount requested, the app should state this and not make any changes to the database.
+seed value is improper: if the seed value is not a real between -1 and 1, the app should state this and not make any changes to the database.
+If a user (/ database) value is provided who does not exist, or for whom your program cannot successfully procure permissions, your Java program can fail. The failure trace will indicate the issue. Your app must work with the default user, your Postgres account in the class.
+
+Operation
+
+Given no failure mode occurs, your app should proceed to do the following.
+
+A tuple is added to the Quest table with the specified day, realm, and theme (in database user).
+Tuples are added to the Loot table that “asign” loot to the new quest, following the loot assignment rules below (in database user).
+Loot Assignment Rules
+
+Loot is to be assigned to the new quest randomly, but with the following two constraints.
+
+distinct. Two pieces of loot of the same type (treasure) are not assigned. (That is, we are sampling the Treasure table without replacement.)
+exceeds. The sum of the assigned loots's value — the corresponding sql in the Treasure table — equals or exceeds that requested (parameter amount).
+For exceeds, you may follow a strategy in which you add loot pieces one at a time until the amount is matched or exceeded by the last piece added. (You do not need to then go remove assigned loot to come back down closer to the amount.) Questeme is just wanting to assure the app does not go overboard on assigning loot to the new quest.
+
+Note that if you have assigned a piece of loot per type of treasure — say, by walking over the Treasure table in a “random” order — for every type of treasure but still have not met or exceeded the amount, then the loot assignment is not possible. In this case, your app should report that error.
