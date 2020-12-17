@@ -103,6 +103,7 @@ schema: login, name, race, earned, quests
 order by login, name
 
 #project 4
+
 Raccoon Rhapsody, the multi-player online game by Questeme, has become wildly popular. The company wants to streamline maintaining the RR-DB database that backs the game.
 
 One task that game administrators have to do is to create new quests on a regular basis for the players. This involves making a new entry into the Quest table for the new quest for a future day with a given theme and region. And then assigning loot — adding to the Loot table — for the new quest. (Of course, much more too has to be done. The game designers have to come up with the story line for the new quest, the artists sometimes must create new gaming assets for the quest and perhaps new scenes, etc. But we do not have to worry about those aspects!)
